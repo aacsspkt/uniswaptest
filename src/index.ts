@@ -1,5 +1,8 @@
+import { ethers } from "ethers";
+
 import { ChainId, Token, TradeType } from "@uniswap/sdk-core";
 
+import ERC20_ABI from "./ERC20Abi.json";
 import { swap } from "./swap";
 import { getProvider, getWallet } from "./utils";
 
@@ -30,7 +33,37 @@ async function main() {
 		slippage: 0.5,
 	});
 
-	console.log("tx:", tx);
+	console.log("\n" + JSON.stringify(tx));
+
+	const receipt = await tx.wait();
+
+	console.log("\n" + JSON.stringify(receipt));
+
+	const iface = new ethers.utils.Interface(ERC20_ABI);
+	const events = receipt.logs
+		.filter((log) => log.address.toLowerCase() === outToken.address.toLowerCase())
+		.map((log) => {
+			try {
+				return iface.parseLog(log);
+			} catch (err) {
+				return;
+			}
+		});
+	console.log("events:", events);
+
+	const rightEvent = events.find((ev) => {
+		console.log("ev", ev);
+		console.log("ev name", ev?.name);
+		console.log("ev args", ev?.args);
+		console.log("ev args", ev?.args[0], ev?.args[1], ev?.args[2]);
+		return ev?.name === "Transfer" && ev?.args[1].toLowerCase() == recipient.toLowerCase();
+	});
+	console.log("revents:", rightEvent);
+
+	if (rightEvent) {
+		console.log("from:", rightEvent.args[0]);
+		console.log("value:", ethers.utils.formatUnits(rightEvent.args[2], outToken.decimals));
+	}
 }
 
 main();
