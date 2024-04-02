@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 
-import { ChainId, Currency, Ether, Percent, Token, TradeType } from "@uniswap/sdk-core";
+import { ChainId, Currency, Percent, Token, TradeType } from "@uniswap/sdk-core";
 import {
 	AlphaRouter,
 	parseAmount,
@@ -10,6 +10,7 @@ import {
 } from "@uniswap/smart-order-router";
 
 import { ERC20_ABI, WETH } from "./constants";
+import { Ether } from "./ethers";
 import { getProvider } from "./utils";
 
 interface SwapOptions {
