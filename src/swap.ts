@@ -52,14 +52,18 @@ export async function swap(
 
 	const swapConfig: SwapOptionsSwapRouter02 = {
 		recipient,
-		slippageTolerance: new Percent(Math.floor(options.slippage * 10_000), 10_000),
+		slippageTolerance: new Percent(Math.floor(options.slippage * 100), 10_000),
 		deadline: options.deadline,
 		type: SwapType.SWAP_ROUTER_02,
 	};
 	console.log("swapconfig:", swapConfig);
 
 	const route = await router.route(amount, outputToken, tradeType, swapConfig);
-	console.log("route:", route);
+	console.log("route:inputAmount", route?.trade.inputAmount.toExact());
+	console.log(
+		"route:minAmountOut",
+		route?.trade.minimumAmountOut(swapConfig.slippageTolerance).toExact(),
+	);
 
 	if (!route) {
 		throw new Error("Could not find route.");
